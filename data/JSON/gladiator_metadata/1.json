@@ -1,0 +1,31 @@
+{
+  "description": "The Executioner always finishes his opponents.",
+  "image": "https://ipfs.io/ipfs/QmZ75m3erHZAgE4qmueJCwQ8VeSaF1iCWakVAh5hUYXMJY",
+  "name": "The Executioner",
+  "attributes": [
+    {
+      "trait_type": "Strength",
+      "value": 18
+    },
+    {
+      "trait_type": "Vitality",
+      "value": 14
+    },
+    {
+      "trait_type": "Dexterity",
+      "value": 11
+    },
+    {
+      "trait_type": "Size",
+      "value": 18
+    },
+    {
+      "trait_type": "Intelligence",
+      "value": 7
+    },
+    {
+      "trait_type": "Luck",
+      "value": 3
+    }
+  ]
+}
