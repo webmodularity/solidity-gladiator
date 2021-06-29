@@ -117,15 +117,8 @@ contract Gladiator is ERC721URIStorage, Ownable {
     return _exists(gladiatorId);
   }
 
-  function getGladiatorAttributes(uint gladiatorId) external view returns(uint, uint, uint, uint, uint, uint) {
-    return (
-    gladiators[gladiatorId].attributes.strength,
-    gladiators[gladiatorId].attributes.vitality,
-    gladiators[gladiatorId].attributes.dexterity,
-    gladiators[gladiatorId].attributes.size,
-    gladiators[gladiatorId].attributes.intelligence,
-    gladiators[gladiatorId].attributes.luck
-    );
+  function getGladiatorAttributes(uint gladiatorId) external view returns(Attributes memory) {
+    return gladiators[gladiatorId].attributes;
   }
 
   function getGladiatorName(uint gladiatorId) external view returns(string memory) {

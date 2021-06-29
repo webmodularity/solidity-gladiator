@@ -90,7 +90,7 @@ describe("Create Gladiator NFTs", function() {
 describe("Test Tournaments", function() {
   before(async () => {
     const Tournament = await ethers.getContractFactory("Tournament");
-    tournament = await Tournament.deploy(gladiator.address);
+    tournament = await Tournament.deploy(gladiator.address, true);
     await tournament.deployed();
   });
 
