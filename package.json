@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.1.0",
-    "@pooltogether/uniform-random-number": "pooltogether/uniform-random-number#master",
     "dotenv": "^10.0.0"
   }
 }

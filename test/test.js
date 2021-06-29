@@ -74,30 +74,17 @@ describe("Create Gladiator NFTs", function() {
     assert(intelligence1 >= 3 && intelligence1 <= 18, `Intelligence attribute for ${gladiator1.name} out of range!`);
     assert(luck1 >= 3 && luck1 <= 18, `Luck attribute for ${gladiator1.name} out of range!`);
   });
-
-  // it("Gladiators can be burned", async function() {
-  //   // Gladiator 0 RIP
-  //   const burnTx = await gladiator.burnGladiator(0);
-  //   await burnTx.wait();
-  //   // Gladaitor 2 RIP
-  //   const burnTx2 = await gladiator.burnGladiator(1);
-  //   await burnTx2.wait();
-  //   let gladiatorCountAfterBurn = await gladiator.getGladiatorCount();
-  //   assert(gladiatorCountAfterBurn == 0, `${gladiatorCountAfterBurn} does not equal 0!`);
-  // });
 });
 
 describe("Test Tournaments", function() {
   before(async () => {
+    // Create a tournament with registrationOpen = true and hardcoreEnabled = true
     const Tournament = await ethers.getContractFactory("Tournament");
-    tournament = await Tournament.deploy(gladiator.address, true);
+    tournament = await Tournament.deploy(gladiator.address, true, true);
     await tournament.deployed();
   });
 
-  it("Open registration for this tournament", async function() {
-    const openTx = await tournament.openRegistration();
-    // wait until the transaction is mined
-    await openTx.wait();
+  it("Check to see if registration is open", async function() {
     assert(await tournament.registrationOpen(), "Registration not open");
   });
 
@@ -115,12 +102,30 @@ describe("Test Tournaments", function() {
     assert(registeredGladiatorCount == 2, `${registeredGladiatorCount} does not equal 2!`);
   });
 
-  it("Start tournament with 2 registered gladiators", async function() {
+  it("Start tournament with 2 registered gladiators and listen for TournamentWinner Event", async function() {
     const startTx = await tournament.startTournament();
     // wait until the transaction is mined
-    await startTx.wait();
+    const startReceipt = await startTx.wait();
+    const winnerEvent = startReceipt.events.find(x => x.event === "TournamentWinner");
+    // tournamentId should be 0 for first tournament
+    assert(winnerEvent.args.tournamentId == 0, `Expecting first tournament ID of 0, but found ${winnerEvent.args.tournamentId}`);
+    // Winner should be either gladiators[0] or gladiators[1]
+    assert(winnerEvent.args.gladiatorId == 0 || winnerEvent.args.gladiatorId == 1,
+        `Expecting winning gladiatorId to be 0 or 1, but found ${winnerEvent.args.gladiatorId}`);
+  });
+
+  it("What started with 2 gladiators should now only be 1", async function() {
     // Should have 1 gladiator registered now
     const afterBurnGladiatorCount = await gladiator.getGladiatorCount();
     assert(afterBurnGladiatorCount == 1, `${afterBurnGladiatorCount} does not equal 1!`);
+  });
+
+  it("Make sure registration is still open (gets disabled during tournament)", async function() {
+    assert(await tournament.registrationOpen(), "Registration not open");
+  });
+
+  it("Expect _tournamentIds to increment after tournament is finished", async function() {
+    const nextTournamentId = await tournament.getNextTournamentId();
+    assert(nextTournamentId == 1, "Registration not open");
   });
 });

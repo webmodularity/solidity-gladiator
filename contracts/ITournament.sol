@@ -2,15 +2,13 @@
 pragma solidity ^0.8.3;
 
 interface ITournament {
-    function changeGladiatorContractAddress(address _gladiatorContractAddress) external;
-
     function getRegisteredGladiatorCount() external view returns(uint);
 
     function openRegistration() external;
 
     function closeRegistration() external;
 
-    function unregisterGladiator(uint gladiatorId) external;
+    function getNextTournamentId() external view returns(uint);
 
     function registerGladiator(uint gladiatorId) external;
 

@@ -11,7 +11,7 @@ import "./ITournament.sol";
 contract Gladiator is ERC721URIStorage, Ownable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
-  Counters.Counter private gladiatorCount;
+  Counters.Counter private _gladiatorCount;
   mapping(uint => GladiatorStruct) internal gladiators;
   address[] public registeredTournamentAddresses;
   mapping(address => bool) internal registeredTournamentAddressMap;
@@ -86,7 +86,7 @@ contract Gladiator is ERC721URIStorage, Ownable {
     _safeMint(msg.sender, gladiatorId);
     _setTokenURI(gladiatorId, ipfsMetaUrl);
     _tokenIds.increment();
-    gladiatorCount.increment();
+    _gladiatorCount.increment();
   }
 
   function registerGladiator(uint gladiatorId, address tournamentAddress) external {
@@ -96,12 +96,6 @@ contract Gladiator is ERC721URIStorage, Ownable {
     require(gladiatorExists(gladiatorId), "Failed to find that gladiator");
     // not already registered for this tournament address
     require(gladiators[gladiatorId].registeredTournamentAddress != tournamentAddress, "Gladiator already registered for this tournament");
-    // Check if gladiator is already registered to different tournament address
-    if (gladiators[gladiatorId].registeredTournamentAddress != address(0)) {
-      // Try and unregister from old tournament first
-      ITournament oldTournament = ITournament(gladiators[gladiatorId].registeredTournamentAddress);
-      oldTournament.unregisterGladiator(gladiatorId);
-    }
     // Approve tournament contract address
     approve(tournamentAddress, gladiatorId);
     // Register Gladiator
@@ -110,7 +104,7 @@ contract Gladiator is ERC721URIStorage, Ownable {
   }
 
   function getGladiatorCount() external view returns(uint) {
-    return gladiatorCount.current();
+    return _gladiatorCount.current();
   }
 
   function gladiatorExists(uint gladiatorId) public view returns(bool) {
@@ -129,7 +123,7 @@ contract Gladiator is ERC721URIStorage, Ownable {
     require(_isApprovedOrOwner(msg.sender, gladiatorId));
     require(_exists(gladiatorId));
     delete gladiators[gladiatorId];
-    gladiatorCount.decrement();
+    _gladiatorCount.decrement();
     _burn(gladiatorId);
   }
 
