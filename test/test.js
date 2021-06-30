@@ -126,6 +126,6 @@ describe("Test Tournaments", function() {
 
   it("Expect _tournamentIds to increment after tournament is finished", async function() {
     const nextTournamentId = await tournament.getNextTournamentId();
-    assert(nextTournamentId == 1, "Registration not open");
+    assert(nextTournamentId == 1, "Tournament counter did not increase as expected");
   });
 });

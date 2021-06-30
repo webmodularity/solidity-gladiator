@@ -10,16 +10,16 @@ import "./IGladiator.sol";
 contract Tournament is Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tournamentIds;
+    // Hardcap gladiators per tournament
+    uint constant MAX_GLADIATORS_PER_TOURNAMENT = 2**8;
     IGladiator internal gladiatorContract;
     // Gladiators who have registered, we cannot rely on count as total of actual valid participants
-    // NFT approval status may have changed since registration and those gladiators will be ignored
+    // NFT may no longer exist or approval status may have changed since registration and those gladiators will be ignored
     uint[] internal registeredGladiators;
-    uint[] internal activeGladiators;
     // Allow gladiators to register for next tournament
     bool public registrationOpen;
     // Enable NFT burn on loss
     bool public hardcoreEnabled;
-
     // Events
     event TournamentWinner(uint tournamentId, uint gladiatorId);
 
@@ -48,24 +48,23 @@ contract Tournament is Ownable {
     function registerGladiator(uint gladiatorId) external {
         require(msg.sender == address(gladiatorContract), "Not the owner of this gladiator");
         require(registrationOpen, "Registration is currently closed");
-        require(registeredGladiators.length < 2 ** 16, "Too many gladiators registered");
+        require(registeredGladiators.length <= MAX_GLADIATORS_PER_TOURNAMENT,
+            "Too many gladiators registered, wait for next tournament");
         registeredGladiators.push(gladiatorId);
     }
 
     function startTournament() external onlyOwner {
-        require(registeredGladiators.length > 0, "No gladiators registered");
+        // Reject any gladiators that no longer exist or have revoked approve() since registering
+        uint[] memory _activeGladiators = _getActiveGladiatorList();
+        require(_activeGladiators.length > 1, "Not enough active gladiators registered");
+        // Ensure that no new gladiators can register during tournament (TODO make sure this is necessary?)
         bool initialRegistrationStatus = registrationOpen;
-        // Turn off gladiator registration if it is currently on
         if (initialRegistrationStatus) {
             closeRegistration();
         }
-        // Reject any gladiators that no longer exist or have revoked approve() since registering
-        _buildActiveGladiatorList();
-        // Randomize order of gladiators so matchups are difficult to predict and round byes are more fair
-        _shuffleActiveGladiators();
-
-        // Fight until 1 gladiator left standing
-        uint[] memory _activeGladiators = activeGladiators;
+        // Randomize order of gladiators so first round matchups are more difficult to predict
+        _shuffleGladiators(_activeGladiators);
+        // Single Elimination style tournament ending with 1 winner
         for (uint roundNumber = 0;roundNumber < _getNumberOfRounds(_activeGladiators.length);roundNumber++) {
             uint matchesThisRound = _activeGladiators.length % 2 == 0
             ? _activeGladiators.length / 2 : _activeGladiators.length / 2 + 1;
@@ -76,7 +75,8 @@ contract Tournament is Ownable {
                 ? registeredGladiators[i] : _fight(registeredGladiators[i], registeredGladiators[i+1]);
                 fightCounter++;
             }
-            _activeGladiators = winners;
+            // Shuffling gladiator positions every round to avoid the last gladiator getting too many byes in certain situations
+            _activeGladiators = _shuffleGladiators(winners);
         }
         // Finish up tournament
         emit TournamentWinner(_tournamentIds.current(), _activeGladiators[0]);
@@ -86,21 +86,6 @@ contract Tournament is Ownable {
         if (initialRegistrationStatus) {
             openRegistration();
         }
-    }
-
-    function tournamentLoop(uint[] memory _gladiators) internal returns(uint[] memory) {
-        uint fightCounter;
-        uint[] memory winners;
-        for (uint i = 0;i < _gladiators.length;i+=2) {
-            if ((i + 1) >= _gladiators.length) {
-                // Single fighter remains, add to winner without the _fight
-                winners[fightCounter] = registeredGladiators[i];
-            } else {
-                winners[fightCounter] = _fight(registeredGladiators[i], registeredGladiators[i+1]);
-            }
-            fightCounter++;
-        }
-        return winners;
     }
 
     function _fight(uint gladiatorId1, uint gladiatorId2) internal returns(uint) {
@@ -129,50 +114,13 @@ contract Tournament is Ownable {
         }
     }
 
-    function _getAttributeSum(IGladiator.Attributes memory _attributes) internal returns(uint) {
+    function _getAttributeSum(IGladiator.Attributes memory _attributes) internal pure returns(uint) {
         return uint(_attributes.strength +
         _attributes.vitality +
         _attributes.dexterity +
         _attributes.size +
         _attributes.intelligence +
             _attributes.luck);
-    }
-
-    function _buildActiveGladiatorList() internal {
-        for (uint i = 0;i < registeredGladiators.length;i++) {
-            if (gladiatorContract.gladiatorExists(registeredGladiators[i]) &&
-                gladiatorContract.getApproved(registeredGladiators[i]) == address(this)) {
-                activeGladiators.push(registeredGladiators[i]);
-            }
-        }
-    }
-
-    function _getNumberOfRounds(uint _totalGladiators) internal view returns(uint) {
-        // Calculating total rounds using binary logarithm
-        // https://medium.com/coinmonks/math-in-solidity-part-5-exponent-and-logarithm-9aef8515136e
-        uint count = _totalGladiators;
-        uint _totalRounds;
-        if (_totalGladiators >= 2**16) { _totalGladiators >>= 16; _totalRounds += 16; }
-        if (_totalGladiators >= 2**8) { _totalGladiators >>= 8; _totalRounds += 8; }
-        if (_totalGladiators >= 2**4) { _totalGladiators >>= 4; _totalRounds += 4; }
-        if (_totalGladiators >= 2**2) { _totalGladiators >>= 2; _totalRounds += 2; }
-        if (_totalGladiators >= 2**1) { /* _totalGladiators >>= 1; */ _totalRounds += 1; }
-        // This is an attempt to do ceil(log2x) if necessary
-        for (uint i = 1;i <= 16;i++) {
-            if (count == 2**i) {
-                return _totalRounds;
-            }
-        }
-        return _totalRounds + 1;
-    }
-
-    function _shuffleActiveGladiators() internal {
-        for (uint i = 0; i < activeGladiators.length; i++) {
-            uint n = i + uint(keccak256(abi.encodePacked(block.timestamp))) % (activeGladiators.length - i);
-            uint temp = activeGladiators[n];
-            activeGladiators[n] = activeGladiators[i];
-            activeGladiators[i] = temp;
-        }
     }
 
     function _handleWinner(uint gladiatorId) internal {
@@ -187,6 +135,63 @@ contract Tournament is Ownable {
             // Burn the loser :O
             gladiatorContract.burnGladiator(gladiatorId);
         }
+    }
+
+    function _getActiveGladiatorCount() internal view returns(uint) {
+        // TODO Has to be a more gas efficient way to get the length
+        uint activeCounter;
+        for (uint i = 0;i < registeredGladiators.length;i++) {
+            if (_isGladiatorActive(registeredGladiators[i])) {
+                activeCounter++;
+            }
+        }
+        return activeCounter;
+    }
+
+    function _isGladiatorActive(uint gladiatorId) internal view returns(bool) {
+        return (gladiatorContract.gladiatorExists(registeredGladiators[gladiatorId]) &&
+        gladiatorContract.getApproved(registeredGladiators[gladiatorId]) == address(this));
+    }
+
+    function _getActiveGladiatorList() internal view returns(uint[] memory) {
+        uint[] memory activeGladiators = new uint[](_getActiveGladiatorCount());
+        uint activeCounter;
+        for (uint i = 0;i < registeredGladiators.length;i++) {
+            if (_isGladiatorActive(registeredGladiators[i])) {
+                activeGladiators[activeCounter] = registeredGladiators[i];
+                activeCounter++;
+            }
+        }
+        return activeGladiators;
+    }
+
+
+    function _getNumberOfRounds(uint _totalGladiators) internal pure returns(uint) {
+        // Calculating total rounds using binary logarithm
+        // https://medium.com/coinmonks/math-in-solidity-part-5-exponent-and-logarithm-9aef8515136e
+        uint count = _totalGladiators;
+        uint _totalRounds;
+        if (_totalGladiators >= 2**8) { _totalGladiators >>= 8; _totalRounds += 8; }
+        if (_totalGladiators >= 2**4) { _totalGladiators >>= 4; _totalRounds += 4; }
+        if (_totalGladiators >= 2**2) { _totalGladiators >>= 2; _totalRounds += 2; }
+        if (_totalGladiators >= 2**1) { /* _totalGladiators >>= 1; */ _totalRounds += 1; }
+        // This is an attempt to do ceil(log2x) if necessary
+        for (uint i = 1;i <= 8;i++) {
+            if (count == 2**i) {
+                return _totalRounds;
+            }
+        }
+        return _totalRounds + 1;
+    }
+
+    function _shuffleGladiators(uint[] memory activeGladiators) internal view returns(uint[] memory) {
+        for (uint i = 0; i < activeGladiators.length; i++) {
+            uint n = i + uint(keccak256(abi.encodePacked(block.timestamp))) % (activeGladiators.length - i);
+            uint temp = activeGladiators[n];
+            activeGladiators[n] = activeGladiators[i];
+            activeGladiators[i] = temp;
+        }
+        return activeGladiators;
     }
 
     function _rollDice(uint256 _upperLimit, uint _nonce) internal view returns(uint) {
