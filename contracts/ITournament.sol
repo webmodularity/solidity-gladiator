@@ -2,7 +2,7 @@
 pragma solidity ^0.8.3;
 
 interface ITournament {
-    function getRegisteredGladiatorCount() external view returns(uint);
+    function getRegisteredGladiatorCount() external view returns(uint16);
 
     function openRegistration() external;
 
