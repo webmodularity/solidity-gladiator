@@ -4,9 +4,9 @@
 //const hardcoreTournamentAddr = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 
 // Rinkeby
-const gladiatorContractAddr = "0x2BdbcA142D6aF7676a109c964E5034a22EC5795e";
-const normalTournamentAddr = "0x607777828760cdb29C29a53DB17415fca15cd9c6";
-const hardcoreTournamentAddr = "0x3bcA61008315af0DbC29687D72ca28fFF08fC5b5";
+const gladiatorContractAddr = "0x914cbD4500f81F82404fBbEA549e4A03232CC7f2";
+const normalTournamentAddr = "0x6eC0dFe3DDb3A7da92317c6211D42f32f06E65Af";
+const hardcoreTournamentAddr = "0x53623Be88DdA082F5b90b9Fad6d8C81B4389F3ee";
 
 exports.gladiator = gladiatorContractAddr;
 exports.normal = normalTournamentAddr;
