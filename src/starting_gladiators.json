@@ -1,0 +1,74 @@
+[
+  {
+    "name": "The Golden Knight",
+    "attributes": {
+      "strength": 18,
+      "vitality": 18,
+      "dexterity": 18,
+      "size": 18,
+      "intelligence": 18,
+      "luck": 18
+    },
+    "ipfsUrl": "https://ipfs.io/ipfs/QmcD54kTmiUvZsY51CXcg7RJBaMmKWNfmCnx7Z4HnLc3YA"
+  },
+  {
+    "name": "The Executioner",
+    "attributes": {
+      "strength": 18,
+      "vitality": 18,
+      "dexterity": 11,
+      "size": 18,
+      "intelligence": 3,
+      "luck": 3
+    },
+    "ipfsUrl": "https://ipfs.io/ipfs/QmXD3AZSmJPbmeoh6oSTmdniunf9s7BTmnHQMDog1vHg6K"
+  },
+  {
+    "name": "Dan the Viking",
+    "attributes": {
+      "strength": 12,
+      "vitality": 9,
+      "dexterity": 5,
+      "size": 12,
+      "intelligence": 18,
+      "luck": 7
+    },
+    "ipfsUrl": "https://ipfs.io/ipfs/QmZHqESQKYqnvVH1WCVV7fBDwBbFzi3hAfbPmvDGJED1WV"
+  },
+  {
+    "name": "Alvaro the Steadfast",
+    "attributes": {
+      "strength": 14,
+      "vitality": 18,
+      "dexterity": 4,
+      "size": 11,
+      "intelligence": 11,
+      "luck": 5
+    },
+    "ipfsUrl": "https://ipfs.io/ipfs/Qmb7uygWhD8hVRJMV9nordNnVgZuB5MkjtjPcJHm2RRjMu"
+  },
+  {
+    "name": "Cody the Crusher",
+    "attributes": {
+      "strength": 16,
+      "vitality": 16,
+      "dexterity": 5,
+      "size": 12,
+      "intelligence": 9,
+      "luck": 5
+    },
+    "ipfsUrl": "https://ipfs.io/ipfs/QmQboSiPqvyT6mNyH7hNN9B9gA4dE3eAJuk8wV1JcdAmCp"
+  },
+  {
+    "name": "Pirate Phil",
+    "attributes": {
+      "strength": 8,
+      "vitality": 8,
+      "dexterity": 12,
+      "size": 7,
+      "intelligence": 11,
+      "luck": 17
+    },
+    "ipfsUrl": "https://ipfs.io/ipfs/QmQZ3DEBuMJ3k8qKbKHHeTsKPomyA6kBbr78914TuUBGcQ"
+  }
+]

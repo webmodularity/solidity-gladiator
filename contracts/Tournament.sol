@@ -22,6 +22,7 @@ contract Tournament is Ownable {
     bool public hardcoreEnabled;
     // Events
     event TournamentWinner(uint tournamentId, uint gladiatorId);
+    event MatchResult(uint tournamentId, uint roundId, uint matchId, uint winnerId, uint loserId);
 
     constructor(address _gladiatorContractAddress, bool _registrationOpen, bool _hardcoreEnabled) {
         gladiatorContract = IGladiator(_gladiatorContractAddress);
@@ -64,16 +65,37 @@ contract Tournament is Ownable {
         }
         // Randomize order of gladiators so first round matchups are more difficult to predict
         _shuffleGladiators(_activeGladiators);
+        uint totalRounds = _getNumberOfRounds(_activeGladiators.length);
         // Single Elimination style tournament ending with 1 winner
-        for (uint roundNumber = 0;roundNumber < _getNumberOfRounds(_activeGladiators.length);roundNumber++) {
-            uint matchesThisRound = _activeGladiators.length % 2 == 0
-            ? _activeGladiators.length / 2 : _activeGladiators.length / 2 + 1;
+        for (uint roundId = 0;roundId < totalRounds;roundId++) {
+            bool byeThisRound;
+            uint matchesThisRound;
+            if (_activeGladiators.length % 2 == 0) {
+                matchesThisRound = _activeGladiators.length / 2;
+            } else {
+                // One gladiator gets a bye this round
+                matchesThisRound = _activeGladiators.length / 2 + 1;
+                byeThisRound = true;
+            }
+            // Each match will have 1 winner so use that as our winners array length
             uint[] memory winners = new uint[](matchesThisRound);
-            uint fightCounter;
+            uint matchCounter;
             for (uint i = 0;i < _activeGladiators.length;i+=2) {
-                winners[fightCounter] = (i + 1) >= _activeGladiators.length
-                ? registeredGladiators[i] : _fight(registeredGladiators[i], registeredGladiators[i+1]);
-                fightCounter++;
+                uint matchWinner;
+                uint matchLoser;
+                if (byeThisRound && (i + 1) == _activeGladiators.length) {
+                    // Set matchWinner and matchLoser to gladiator with bye
+                    matchWinner = matchLoser = _activeGladiators[i];
+                } else {
+                    (matchWinner, matchLoser) = _fight(_activeGladiators[i], _activeGladiators[i+1]);
+                    if (hardcoreEnabled) {
+                        // Burn the loser :O
+                        gladiatorContract.burnGladiator(matchLoser);
+                    }
+                }
+                winners[matchCounter] = matchWinner;
+                emit MatchResult(_tournamentIds.current(), roundId, matchCounter, matchWinner, matchLoser);
+                matchCounter++;
             }
             // Shuffling gladiator positions every round to avoid the last gladiator getting too many byes in certain situations
             _activeGladiators = _shuffleGladiators(winners);
@@ -88,7 +110,7 @@ contract Tournament is Ownable {
         }
     }
 
-    function _fight(uint gladiatorId1, uint gladiatorId2) internal returns(uint) {
+    function _fight(uint gladiatorId1, uint gladiatorId2) internal view returns(uint, uint) {
         IGladiator.Attributes memory gladiator1Attributes = gladiatorContract.getGladiatorAttributes(gladiatorId1);
         IGladiator.Attributes memory gladiator2Attributes = gladiatorContract.getGladiatorAttributes(gladiatorId2);
         // Fighting
@@ -103,14 +125,10 @@ contract Tournament is Ownable {
         if (gladiator1Score >= gladiator2Score) {
             // Going 1st has some bias in this battle mode :O
             // Gladiator1 is winner
-            _handleWinner(gladiatorId1);
-            _handleLoser(gladiatorId2);
-            return gladiatorId1;
+            return (gladiatorId1, gladiatorId2);
         } else {
             // Gladiator2 is winner
-            _handleWinner(gladiatorId2);
-            _handleLoser(gladiatorId1);
-            return gladiatorId2;
+            return (gladiatorId2, gladiatorId1);
         }
     }
 
@@ -121,20 +139,6 @@ contract Tournament is Ownable {
         _attributes.size +
         _attributes.intelligence +
             _attributes.luck);
-    }
-
-    function _handleWinner(uint gladiatorId) internal {
-        // TODO implement tournament stats
-        // Increase win counter for this tournament
-    }
-
-    function _handleLoser(uint gladiatorId) internal {
-        // TODO implement tournament stats
-        // Decrease win counter for this tournament
-        if (hardcoreEnabled) {
-            // Burn the loser :O
-            gladiatorContract.burnGladiator(gladiatorId);
-        }
     }
 
     function _getActiveGladiatorCount() internal view returns(uint) {
