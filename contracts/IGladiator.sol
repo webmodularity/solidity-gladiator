@@ -40,5 +40,7 @@ interface IGladiator is IERC721 {
 
     function getGladiatorName(uint gladiatorId) external view returns(string memory);
 
+    function finishTournament(uint gladiatorId) external;
+
     function burnGladiator(uint gladiatorId) external;
 }

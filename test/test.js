@@ -57,6 +57,10 @@ describe("Test Normal Tournament Mode", function() {
     const Tournament = await ethers.getContractFactory("Tournament");
     normalTournament = await Tournament.deploy(gladiator.address, true, false);
     await normalTournament.deployed();
+    // Register address with Gladiator contract
+    const registerAddressTx = await gladiator.registerTournamentAddress(normalTournament.address);
+    // wait until the transaction is mined
+    await registerAddressTx.wait();
   });
 
   it("Check to see if registration is open", async function() {
@@ -107,6 +111,10 @@ describe("Test Hardcore Tournament Mode", function() {
     const Tournament = await ethers.getContractFactory("Tournament");
     hardcoreTournament = await Tournament.deploy(gladiator.address, true, true);
     await hardcoreTournament.deployed();
+    // Register address with Gladiator contract
+    const registerAddressTx = await gladiator.registerTournamentAddress(hardcoreTournament.address);
+    // wait until the transaction is mined
+    await registerAddressTx.wait();
   });
 
   it(`Register all (${gladiators.length}) gladiators at hardcore tournament`, async function() {

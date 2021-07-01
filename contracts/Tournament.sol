@@ -88,6 +88,8 @@ contract Tournament is Ownable {
                     matchWinner = matchLoser = _activeGladiators[i];
                 } else {
                     (matchWinner, matchLoser) = _fight(_activeGladiators[i], _activeGladiators[i+1]);
+                    // The end of this tournament for the loser
+                    gladiatorContract.finishTournament(matchLoser);
                     if (hardcoreEnabled) {
                         // Burn the loser :O
                         gladiatorContract.burnGladiator(matchLoser);
@@ -100,8 +102,11 @@ contract Tournament is Ownable {
             // Shuffling gladiator positions every round to avoid the last gladiator getting too many byes in certain situations
             _activeGladiators = _shuffleGladiators(winners);
         }
-        // Finish up tournament
+        // The end of the tournament for the winner
+        gladiatorContract.finishTournament(_activeGladiators[0]);
+        // Lets let everyone know
         emit TournamentWinner(_tournamentIds.current(), _activeGladiators[0]);
+        // Finish up tournament
         delete registeredGladiators;
         _tournamentIds.increment();
         // Turn gladiator registration back on if it started that way
@@ -153,8 +158,8 @@ contract Tournament is Ownable {
     }
 
     function _isGladiatorActive(uint gladiatorId) internal view returns(bool) {
-        return (gladiatorContract.gladiatorExists(registeredGladiators[gladiatorId]) &&
-        gladiatorContract.getApproved(registeredGladiators[gladiatorId]) == address(this));
+        return (gladiatorContract.gladiatorExists(gladiatorId) &&
+        gladiatorContract.getApproved(gladiatorId) == address(this));
     }
 
     function _getActiveGladiatorList() internal view returns(uint[] memory) {

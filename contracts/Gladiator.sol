@@ -92,8 +92,10 @@ contract Gladiator is ERC721URIStorage, Ownable {
   function registerGladiator(uint gladiatorId, address tournamentAddress) external {
     // isOwner
     require(ownerOf(gladiatorId) == msg.sender);
+    // tournamentAddress is registered
+    require(registeredTournamentAddressMap[tournamentAddress], "This tournament address is not authorized");
     // gladiator exists (isn't dead)
-    require(gladiatorExists(gladiatorId), "Failed to find that gladiator");
+    require(gladiatorExists(gladiatorId), "Gladiator Not Found (404)");
     // not already registered for this tournament address
     require(gladiators[gladiatorId].registeredTournamentAddress != tournamentAddress, "Gladiator already registered for this tournament");
     // Approve tournament contract address
@@ -101,6 +103,8 @@ contract Gladiator is ERC721URIStorage, Ownable {
     // Register Gladiator
     ITournament newTournament = ITournament(tournamentAddress);
     newTournament.registerGladiator(gladiatorId);
+    // Keep track of which tournament this gladiator is registered at
+    gladiators[gladiatorId].registeredTournamentAddress = tournamentAddress;
   }
 
   function getGladiatorCount() external view returns(uint) {
@@ -117,6 +121,12 @@ contract Gladiator is ERC721URIStorage, Ownable {
 
   function getGladiatorName(uint gladiatorId) external view returns(string memory) {
     return gladiators[gladiatorId].name;
+  }
+
+  function finishTournament(uint gladiatorId) external {
+    require(_isApprovedOrOwner(msg.sender, gladiatorId));
+    // Reset registeredTournamentAddress for this gladiator
+    gladiators[gladiatorId].registeredTournamentAddress = address(0);
   }
 
   function burnGladiator(uint gladiatorId) external {

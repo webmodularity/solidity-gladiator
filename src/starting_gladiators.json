@@ -9,7 +9,7 @@
       "intelligence": 18,
       "luck": 18
     },
-    "ipfsUrl": "https://ipfs.io/ipfs/QmcD54kTmiUvZsY51CXcg7RJBaMmKWNfmCnx7Z4HnLc3YA"
+    "ipfsUrl": "https://ipfs.io/ipfs/QmcX1m8DiReocQS1F9hj7T7MHbY6qdpqd4ZdUSj9fpqpP4"
   },
   {
     "name": "The Executioner",
@@ -21,7 +21,7 @@
       "intelligence": 3,
       "luck": 3
     },
-    "ipfsUrl": "https://ipfs.io/ipfs/QmXD3AZSmJPbmeoh6oSTmdniunf9s7BTmnHQMDog1vHg6K"
+    "ipfsUrl": "https://ipfs.io/ipfs/QmaUbLfRAtP5nTUVD6DA8xu1MVJWJFD5YfoYJirbQjAfvf"
   },
   {
     "name": "Dan the Viking",
@@ -33,7 +33,7 @@
       "intelligence": 18,
       "luck": 7
     },
-    "ipfsUrl": "https://ipfs.io/ipfs/QmZHqESQKYqnvVH1WCVV7fBDwBbFzi3hAfbPmvDGJED1WV"
+    "ipfsUrl": "https://ipfs.io/ipfs/QmSBug2jExvyJxP51ibnZXcnSmaQrUoyyeNdgrauyPy3Nq"
   },
   {
     "name": "Alvaro the Steadfast",
@@ -45,7 +45,7 @@
       "intelligence": 11,
       "luck": 5
     },
-    "ipfsUrl": "https://ipfs.io/ipfs/Qmb7uygWhD8hVRJMV9nordNnVgZuB5MkjtjPcJHm2RRjMu"
+    "ipfsUrl": "https://ipfs.io/ipfs/QmWjuFzHTGaPUYeprKzncqSVDaWfdma6NRmVbN26RBg9Ek"
   },
   {
     "name": "Cody the Crusher",
@@ -57,7 +57,7 @@
       "intelligence": 9,
       "luck": 5
     },
-    "ipfsUrl": "https://ipfs.io/ipfs/QmQboSiPqvyT6mNyH7hNN9B9gA4dE3eAJuk8wV1JcdAmCp"
+    "ipfsUrl": "https://ipfs.io/ipfs/QmcMqtYWDR5PJPqQekofr6peWFzMqfoveuJAqtYopSh3Nc"
   },
   {
     "name": "Pirate Phil",
@@ -69,6 +69,18 @@
       "intelligence": 11,
       "luck": 17
     },
-    "ipfsUrl": "https://ipfs.io/ipfs/QmQZ3DEBuMJ3k8qKbKHHeTsKPomyA6kBbr78914TuUBGcQ"
+    "ipfsUrl": "https://ipfs.io/ipfs/QmdZ6UCkxjB8Q6Y2zfB4DRCTpM5qSRQ8bE17SR3MdVB3w1"
+  },
+  {
+    "name": "Rory the Rogue",
+    "attributes": {
+      "strength": 6,
+      "vitality": 6,
+      "dexterity": 18,
+      "size": 18,
+      "intelligence": 4,
+      "luck": 11
+    },
+    "ipfsUrl": "https://ipfs.io/ipfs/QmafrDnqEQjfmrMieEjMdK7sr5sfyrZ1gf97HA1qZe5tbt"
   }
 ]
